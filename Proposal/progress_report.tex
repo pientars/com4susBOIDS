@@ -62,13 +62,16 @@ After analyzing the data, we will have a set of nodes that are spatially distrib
 Fortunately, we only care about constructing a network that joins nodes that are geographically close (because it is infeasible for birds to instantly travel large distances). Thus, we construct an overlay network out of the nodes where any two nodes within a certain geographical distance are connected by an edge --- the presence of an edge in this overlay network means that we will consider it as a candidate for network inference, and perform a computation between the two nodes. Because this overlay network is embedded on a 2D plane, this means we only need to make $O(n)$ time-series comparisons (provided our `closeness' criteria is a small function of our `coarseness' criteria). 
 
 \subsection{Network Inference} 
-Statistical approaches to graph inference is a well researched area with many effective techniques \cite{AlbertMechanics}. Because the nature of this research problems involves inferring a network from a time-varying signal, we will leverage the work of Kramer et al. who proposed a state of the art method for statistically inferring an underlying functional network from a time-varied signal \cite{kramer}.
+Statistical approaches to graph inference is a well researched area with many effective techniques \cite{AlbertMechanics}. Because the nature of this research problems involves inferring a network from a time-varying signal, we will leverage the work of Kramer et al. who proposed a state of the art method for statistically inferring an underlying functional network from a time-varied signal \cite{kramer}. In this case, we attempt to establish the existence of signal propagation from one node to another, with a certain degree of confidence. 
 
-\tod{Time window based network construction.}
+Kramer, et. al present three methods of increasing sophistication (and increasing computational intensity) for inferring a network from a set of nodes and corresponding time-series data. While the third method looks like it may be computationally infeasible (requiring a massive number of FFTs compounded by a massive number of bootstrap runs), we will explore the effectiveness of all three methods in our work. 
 
+A final detail is that we will need to look at `slices' of the time-series data and perform network inference for a set number of time periods (to account for different migratory behaviors in different seasons). The final network can be unweighted (where an edge exists if its weight is above a certain threshold), or weighted by the confidence that it is in the migratory network, to identify important corridors, sources, and sinks using a flow analysis. 
 
-\tod{Spatial network evolution and bird migration}
+\section{Related Work}
 The data from eBird was already used by Hurlbert et al. in an investigation of red vireo migration; wherein they discovered a direct correlation between the migration patterns and the average temperature \cite{hurlbert}. 
+
+Another migration study, using Hidden Markov models on synthetic data, was performed by Sheldon, et. al \cite{conf/nips/SheldonEK07}. We plan to compare and contrast our approach to these studies, and any others that we find.
 
 \section{Proposed Timeline} \vspace{-10 pt}
 The following table denotes our estimates for the \textit{time of completion} for various stages of this research.
@@ -87,11 +90,6 @@ Application of NEI on eBird Data & April 1 \\
 \caption{The estimation of task completion dates for our eBird research.}
 \label{table:chart}
 \end{table*}
-
-
-
-
-
 
 \end{multicols}
 \bibliographystyle{plain}
