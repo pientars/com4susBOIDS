@@ -1,0 +1,117 @@
+\documentclass[11pt]{article}
+
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{cite}
+%\usepackage{algorithmic}
+%\usepackage{algorithm}
+\usepackage{todonotes}
+\usepackage{url}
+\usepackage{tikz}
+\usetikzlibrary{arrows}
+
+\usepackage{multicol}
+\usepackage{caption}
+\usepackage{subcaption}
+
+
+\usepackage{listings}
+ \lstset{
+            language=Matlab,                                % choose the language of the code
+    %       basicstyle=10pt,                                % the size of the fonts that are used for the code
+            numbers=left,                                   % where to put the line-numbers
+            numberstyle=\footnotesize,                      % the size of the fonts that are used for the line-numbers
+            stepnumber=1,                                           % the step between two line-numbers. If it's 1 each line will be numbered
+            numbersep=5pt,                                  % how far the line-numbers are from the code
+    %       backgroundcolor=\color{white},          % choose the background color. You must add \usepackage{color}
+            showspaces=false,                               % show spaces adding particular underscores
+            showstringspaces=false,                         % underline spaces within strings
+            showtabs=false,                                         % show tabs within strings adding particular underscores
+    %       frame=single,                                           % adds a frame around the code
+    %       tabsize=2,                                              % sets default tabsize to 2 spaces
+    %       captionpos=b,                                           % sets the caption-position to bottom
+            breaklines=true,                                        % sets automatic line breaking
+            breakatwhitespace=false,                        % sets if automatic breaks should only happen at whitespace
+            escapeinside={\%*}{*)}                          % if you want to add a comment within your code
+}
+
+\setlength{\paperwidth}{8.5in}
+\setlength{\paperheight}{11in}
+\setlength{\voffset}{-0.2in}
+\setlength{\topmargin}{0in}
+\setlength{\headheight}{0in}
+\setlength{\headsep}{0in}
+\setlength{\footskip}{30pt}
+\setlength{\textheight}{9.25in}
+\setlength{\hoffset}{0in}
+\setlength{\oddsidemargin}{0in}
+\setlength{\textwidth}{6.5in}
+\setlength{\parindent}{0in}
+\setlength{\parskip}{9pt}
+
+\newcommand{\tod}[1]{\textcolor{red}{[#1]}}
+\newcommand{\ben}{\begin{enumerate}}
+\newcommand{\een}{\end{enumerate}}
+
+\DeclareGraphicsRule{.JPG}{eps}{*}{`jpeg2ps #1}
+
+\title{Mining eBird Networks\\ Project Proposal\vspace{-8pt}}
+\author{Casey Battaglino\\Robert Pienta}
+\date{}
+\begin{document}
+\maketitle
+\begin{multicols}{2}
+\section*{Introduction} \vspace{-10 pt}
+
+\tod{Birds are beautiful and we need to understand more about how they interact as seasonally transient members of our ecosystem.}
+
+
+We are interested in inferring the underlying network of a single species of bird distributed both over time and geographically across the United States.
+
+\tod{Needs for careful normalization and data-cleaning if raw eBird data is used.}
+
+\section*{Proposed Approach} \vspace{-10 pt}
+\tod{Data preprocessing, cleaning, de-noising}
+
+
+\tod{Time window based network construction.}
+
+
+\tod{Spatial network evolution and bird migration}
+The data from eBird was already used by Hurlbert et al. in an investigation of red vireo migration; wherein they discovered a direct correlation between the migration patterns and the average temperature \cite{hurlbert}. 
+
+\section*{Relevant Literature}
+Statistical approaches to graph inference is a well researched area with many effective techniques \cite{AlbertMechanics}.
+Because the nature of this research problems involves inferring a network from a time-varying signal, we will leverage the work of Kramer et al. 
+Kramer et al. proposed a state of the art method for statistically inferring an underling network from a time-varied signal \cite{kramer}.
+
+\section*{Proposed Timeline} \vspace{-10 pt}
+The following table denotes our estimates for the \textit{time of completion} for various stages of this research.
+\begin{table*}
+\centering
+\begin{tabular}{|ll|} \hline
+Task & Date\\ \hline
+Deep Literature Review & March 12  \\
+Procure eBird Data & March 14 \\
+eBird Data Cleaning, Denoising, and Normalization. & March 15 \\
+Implementation: Network Edge Inferer (NEI) &March 24 \\
+Testing of NEI & March 28  \\
+Application of NEI on eBird Data & April 1 \\
+
+\hline\end{tabular}
+\caption{The estimation of task completion dates for our eBird research.}
+\label{table:chart}
+\end{table*}
+
+
+
+
+
+
+\end{multicols}
+\bibliographystyle{plain}
+\bibliography{bib}
+
+
+\end{document}
