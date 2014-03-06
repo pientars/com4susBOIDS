@@ -4,8 +4,6 @@
 \usepackage{amsmath}
 \usepackage{graphicx}
 \usepackage{cite}
-%\usepackage{algorithmic}
-%\usepackage{algorithm}
 \usepackage{todonotes}
 \usepackage{url}
 \usepackage{tikz}
@@ -14,27 +12,6 @@
 \usepackage{multicol}
 \usepackage{caption}
 \usepackage{subcaption}
-
-
-\usepackage{listings}
- \lstset{
-            language=Matlab,                                % choose the language of the code
-    %       basicstyle=10pt,                                % the size of the fonts that are used for the code
-            numbers=left,                                   % where to put the line-numbers
-            numberstyle=\footnotesize,                      % the size of the fonts that are used for the line-numbers
-            stepnumber=1,                                           % the step between two line-numbers. If it's 1 each line will be numbered
-            numbersep=5pt,                                  % how far the line-numbers are from the code
-    %       backgroundcolor=\color{white},          % choose the background color. You must add \usepackage{color}
-            showspaces=false,                               % show spaces adding particular underscores
-            showstringspaces=false,                         % underline spaces within strings
-            showtabs=false,                                         % show tabs within strings adding particular underscores
-    %       frame=single,                                           % adds a frame around the code
-    %       tabsize=2,                                              % sets default tabsize to 2 spaces
-    %       captionpos=b,                                           % sets the caption-position to bottom
-            breaklines=true,                                        % sets automatic line breaking
-            breakatwhitespace=false,                        % sets if automatic breaks should only happen at whitespace
-            escapeinside={\%*}{*)}                          % if you want to add a comment within your code
-}
 
 \setlength{\paperwidth}{8.5in}
 \setlength{\paperheight}{11in}
@@ -62,18 +39,30 @@
 \begin{document}
 \maketitle
 \begin{multicols}{2}
-\section*{Introduction} \vspace{-10 pt}
+\section{Introduction} \vspace{-10 pt}
+%\tod{Birds are beautiful and we need to understand more about how they interact as seasonally transient members of our ecosystem.}
+eBird\cite{DBLP:conf/iaai/KellingGFLWYDG12} is a `citizen science' project that allows for users to report and store bird sightings online. This allows for the crowd-sourcing of bird identification and monitoring, a process that would otherwise require massive amounts of time and effort from researchers. 
 
-\tod{Birds are beautiful and we need to understand more about how they interact as seasonally transient members of our ecosystem.}
+While this removes the ``birden'' of data collection from experts, it also introduces a number of new problems. In particular, it introduces a higher probability of misidentification (when non-experts attempt to identify birds), and naturally produces more data in areas of higher human population density (the problem of spatial bias). Thus, data must be sanitized and normalized before it can be used to actually model bird presence. Solutions to these particular problems are presented by Kelling, et. al \cite{DBLP:conf/iaai/KellingGFLWYDG12}.
 
+The problem of generating a more continuous (spatially and temporal) species distribution from this data is discussed in the `STEM' paper of Fink, et. al~\cite{stem}.
 
-We are interested in inferring the underlying network of a single species of bird distributed both over time and geographically across the United States.
+Thus, a good deal of research has been put into generating accurate species distribution estimates over time. We are interested in using this generated data to explore higher-level questions regarding the movement of migratory birds. 
 
-\tod{Needs for careful normalization and data-cleaning if raw eBird data is used.}
+In particular, we are interested in inferring an underlying migration network of a given species of bird, given its spatial distribution over time. In our proposed model, nodes in the network represent a contiguous area of the United States, and weighted edges in the network represent the computed confidence of bird migration from location to location, weighted by the confidence that birds are migrating from one location to the other. This network could then be used to automatically identify important areas (high-flow bottlenecks) for bird migration, as well as important sources and sinks of migration. 
 
-\section*{Proposed Approach} \vspace{-10 pt}
-\tod{Data preprocessing, cleaning, de-noising}
+\section{Proposed Approach} \vspace{-10 pt}
+\subsection{Data}
+Our proposed approach relies on the availability of clean, reliable data for bird distribution from eBird. Through correspondence with Prof. Dilikina, we will have access to spatio-temporal data for two species of migratory birds, generated by the STEM model~\cite{stem}. 
 
+This data comes in the form of spatio-temporal data at hundreds of thousands of points distributed through the United States. We propose to reduce noise and computational complexity by aggregating these points into a smaller number of coarse points that aggregate the time-series data for all fine-grained points within a certain radius. This process may require proposing an interpolation function. The radius that a coarse point covers then becomes a tuning parameter in our final model. (A large radius will reduce noise at the expense of a less-detailed geographical model). 
+
+After analyzing the data, we will have a set of nodes that are spatially distributed through the United States, which have time-series data (concentration of a particular bird species at time $t$) associated with each node. As stated, our goal is network inference --- we wish to find a network that represents bird migration through these points in a given time slice. In the naive case, we would have to compare the time series data between every two points, for a total of $O(n^2)$ time-series comparisons
+
+Fortunately, we only care about constructing a network that joins nodes that are geographically close (because it is infeasible for birds to instantly travel large distances). Thus, we construct an overlay network out of the nodes where any two nodes within a certain geographical distance are connected by an edge --- the presence of an edge in this overlay network means that we will consider it as a candidate for network inference, and perform a computation between the two nodes. Because this overlay network is embedded on a 2D plane, this means we only need to make $O(n)$ time-series comparisons (provided our `closeness' criteria is a small function of our `coarseness' criteria). 
+
+\subsection{Network Inference} 
+Statistical approaches to graph inference is a well researched area with many effective techniques \cite{AlbertMechanics}. Because the nature of this research problems involves inferring a network from a time-varying signal, we will leverage the work of Kramer et al. who proposed a state of the art method for statistically inferring an underlying functional network from a time-varied signal \cite{kramer}.
 
 \tod{Time window based network construction.}
 
@@ -81,12 +70,7 @@ We are interested in inferring the underlying network of a single species of bir
 \tod{Spatial network evolution and bird migration}
 The data from eBird was already used by Hurlbert et al. in an investigation of red vireo migration; wherein they discovered a direct correlation between the migration patterns and the average temperature \cite{hurlbert}. 
 
-\section*{Relevant Literature}
-Statistical approaches to graph inference is a well researched area with many effective techniques \cite{AlbertMechanics}.
-Because the nature of this research problems involves inferring a network from a time-varying signal, we will leverage the work of Kramer et al. 
-Kramer et al. proposed a state of the art method for statistically inferring an underling network from a time-varied signal \cite{kramer}.
-
-\section*{Proposed Timeline} \vspace{-10 pt}
+\section{Proposed Timeline} \vspace{-10 pt}
 The following table denotes our estimates for the \textit{time of completion} for various stages of this research.
 \begin{table*}
 \centering
