@@ -1,20 +1,19 @@
 import numpy as np
-# import matplotlib.pyplot as plt
-from math import exp, log, floor
+#import matplotlib.pyplot as plt
+from math import exp, log, floor, fabs, pi, sqrt, pow
 
 def CrossCorrijAtLagT(data, t, i, j):
-	[n,tn] = np.shape(data)
-	sigi = np.std(data[i,:])
-	mui = np.mean(data[i,:])
-	sigj = np.std(data[j,:])
-	muj = np.mean(data[j,:])
+	[m,tn] = np.shape(data)
+	sigi = np.std(data[i,0:(tn-t-1)])
+	mui = np.mean(data[i,0:(tn-t-1)])
+	sigj = np.std(data[j,t:(tn-1)])
+	muj = np.mean(data[j,t:(tn-1)])
+
 
 	accu = 0;
-
-	for r in range(0, n-t):
+	for r in range(0, tn-t-1):
 		accu += (data[i,r] - mui) * (data[j,r+t] - muj);
-	accu /= 1/(sigi*sigj*(n-2*t));
-	return accu;
+	return accu/(sigi*sigj*(tn-t-1));
 
 def FisherTransform(Cijt):
 	return .5 * log((1+Cijt)/(1-Cijt));
@@ -22,32 +21,64 @@ def FisherTransform(Cijt):
 
 def CAtLagT(data, t):
 	[n,tn] = np.shape(data)
-	Corrs = np.zeros((5,5))
-
+	Corrs = np.zeros((n,n))
 	# print(data);
 	for i in range(0,n):
 		for j in range(0,n):
 			if (i == j) : continue
-			Corrs[i,j] = FisherTransform(CrossCorrijAtLagT(data, i, j, 2))
+			# print(CrossCorrijAtLagT(data, t, i, j))
+			Corrs[i,j] = FisherTransform(CrossCorrijAtLagT(data, t, i, j))
 	return Corrs;	
 
+#P{Zij <= z}
+def ProbZ(Zij, tn):
+	an = sqrt(2*log(tn))
+	bn = an - (log(log(tn)) + np.log(4*pi))/(2*an)
+	return exp( -2 * exp(-an*(Zij-bn)) )
 
 
-data = np.random.rand(5,50)
+
+
+
+
+##################Experimental Data Generation##################
+def PinkNoise(alpha, m, tn):
+	pdata = np.random.rand(m, tn)	
+	funky = np.vectorize(lambda x: 1/pow(x, alpha))
+	return funky(pdata)
+
+
+#print(PinkNoise(.333, 5, 5))
+#Dependent edges from 1<->2   and   3<->4
+#data = np.random.rand(5,50)
+data = PinkNoise(.33, 5, 200)
+data[1, :] += data[2,:]*.5
+data[3, :] += data[4,:]*.5
+#print(data)
+# data[4, 10:50] += np.ones((40))*.1
+
 [n,tn] = np.shape(data)
 corr_list = []
-tn = 4;
-for t in range(0,int(floor(tn/2))):
+max_corrs = np.zeros(int(floor(tn/2)-1))
+max_locs = []
+
+for t in range(0,int(floor(tn/2))-1):
 	corr_list.append(CAtLagT(data, t))
+	# print(corr_list[t])
+	# print("\n")
+	max_locs.append(np.argmax(np.fabs(corr_list[t])))
+	max_corrs[t] = np.max(np.fabs(corr_list[t]))
+	
+corr_std = np.std(max_corrs)
 
-print(corr_list);
+# print(max_corrs/corr_std)
+# print(max_locs)
 
 
+#Take all the edges with statistically significant edge chance
+p_val = map( (lambda x: 1.0-ProbZ(x, tn)), max_corrs/corr_std)
+for i in range(0, len(p_val)):
+	if p_val[i] < 0.01:
+		print('p-val={:f}  t={:d}  i={:d}  j={:d}'.format(p_val[i], i,  int(floor(max_locs[i]/n)), max_locs[i]%n))
 
-#create the cross correlation Cij[t]
-
-#take the Fishes transform CijF[t]
-
-#Calculate the variance over CijF[t]
-
-#
+#print(p_val)
