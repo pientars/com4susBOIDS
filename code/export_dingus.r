@@ -1,0 +1,5 @@
+write.csv(srd.stm.ave$locs, file="tree_swallow_locs.csv")
+write.csv(srd.stm.ave$times, file="tree_swallow_times.csv")
+write.csv(srd.stm.ave$count, file="tree_swallow_count.csv")
+write.csv(srd.stm.ave$var, file="tree_swallow_var.csv")
+write.csv(srd.stm.ave$mean, file="swallow_mean")
