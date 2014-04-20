@@ -12,12 +12,9 @@ lat_range = max_lat - min_lat; long_range = max_long - min_long;
 num_div = 50; assert(num_div > 2);
 num_times = 52;
 
-# regularize the space as (ns * ns) equally sized rectangles
-graph_dims = [num_div, num_div];
-
 # accumulate time-series data for each bounding box in 'graph'
-graph = [[[0]*num_times for i in xrange(num_div)] for j in xrange(num_div)];
-num_ts = [[0 for i in xrange(num_div)] for j in xrange(num_div)];
+graph = [[[0]*num_times for i in xrange(num_div + 1)] for j in xrange(num_div + 1)];
+num_ts = [[0 for i in xrange(num_div + 1)] for j in xrange(num_div + 1)];
 
 graph_lats = np.linspace(min_lat, max_lat, num_div + 1);
 graph_longs = np.linspace(min_long, max_long, num_div + 1);
@@ -25,7 +22,7 @@ lat_dim = graph_lats[1] - graph_lats[0];
 long_dim = graph_longs[1] - graph_longs[0];
 
 # read in the file of bird means
-mean_file = open('test_swallow_mean.csv', 'r');
+mean_file = open('tree_swallow_mean.csv', 'r');
 reader = csv.reader(mean_file, delimiter = ',');
 
 first_line = True
@@ -48,7 +45,10 @@ for i,j in np.ndindex((num_div, num_div)):
 with open('bird_ts.csv', 'wb') as csvfile:
 	graphwriter = csv.writer(csvfile, delimiter=',');
 	for i,j in np.ndindex((num_div, num_div)):
-		data_to_write = [i, j, graph_lats[i], graph_longs[j], graph[i][j]];
+		# place the node coordinates in the center of the bounding box
+		node_lat = graph_lats[i] + (lat_dim / 2);
+		node_long = graph_longs[j] + (long_dim / 2);
+		data_to_write = [num_ts[i][j], i, j, node_lat, node_long, graph[i][j]];
 		graphwriter.writerow(data_to_write);
 
 def get_horz_node(longitude, min_long, long_dim):
