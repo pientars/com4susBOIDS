@@ -1,6 +1,5 @@
 import numpy as np
 import csv
-#from numpy import genfromtxt
 
 bird_locs = np.genfromtxt('tree_swallow_locs.csv', delimiter=',');
 bird_locs = bird_locs[1::,1::];
@@ -11,32 +10,49 @@ lat_range = max_lat - min_lat; long_range = max_long - min_long;
 
 # number of square segments along one dimension. take as param
 num_div = 50; assert(num_div > 2);
+num_times = 52;
 
 # regularize the space as (ns * ns) equally sized rectangles
 graph_dims = [num_div, num_div];
 
-# a set of coordinates for each bounding box
-graph = [[set() for i in xrange(numdiv)] for j in xrange(numdiv)];
+# accumulate time-series data for each bounding box in 'graph'
+graph = [[[0]*num_times for i in xrange(num_div)] for j in xrange(num_div)];
+num_ts = [[0 for i in xrange(num_div)] for j in xrange(num_div)];
 
-#   don't think we need these ...
-# graph_lats = np.linspace(min_lat, max_lat, num_div + 1);
-# graph_longs = np.linspace(min_long, max_long, num_div + 1);
-
+graph_lats = np.linspace(min_lat, max_lat, num_div + 1);
+graph_longs = np.linspace(min_long, max_long, num_div + 1);
 lat_dim = graph_lats[1] - graph_lats[0];
 long_dim = graph_longs[1] - graph_longs[0];
 
+# read in the file of bird means
 mean_file = open('test_swallow_mean.csv', 'r');
 reader = csv.reader(mean_file, delimiter = ',');
 
+first_line = True
 for line in reader:
+	if first_line:    #skip first line
+		first_line = False
+		continue
 	coord_id = int(line[0]) - 1;
 	ts = [float(val) for val in line[1::]];
-	h = get_horz_node(bird_locs[coord_id,1],min_long,long_dim);
-	v = get_vert_node(bird_locs[coord_id,0],min_lat,lat_dim);
-#todo: add ts to graph[v][h]
+	h = int(get_horz_node(bird_locs[coord_id,1],min_long,long_dim));
+	v = int(get_vert_node(bird_locs[coord_id,0],min_lat,lat_dim));
+	graph[v][h] = map(lambda x: x[0] + x[1], zip(graph[v][h], ts))
+	#graph[v][h] = [x+y for x,y in zip(graph[v][h], ts)];
+	num_ts[v][h] += 1;
+
+for i,j in np.ndindex((num_div, num_div)):
+	if (num_ts[i][j] >= 1):
+		graph[i][j] = [x / num_ts[i][j] for x in graph[i][j]];
+
+with open('bird_ts.csv', 'wb') as csvfile:
+	graphwriter = csv.writer(csvfile, delimiter=',');
+	for i,j in np.ndindex((num_div, num_div)):
+		data_to_write = [i, j, graph_lats[i], graph_longs[j], graph[i][j]];
+		graphwriter.writerow(data_to_write);
 
 def get_horz_node(longitude, min_long, long_dim):
-	return (longitude - min_long) // long_dim;
+	return int((longitude - min_long) // long_dim);
 
 def get_vert_node(latitude, min_lat, lat_dim):
-	return (latitude - min_lat) // lat_dim;
+	return int((latitude - min_lat) // lat_dim);
