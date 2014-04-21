@@ -1,7 +1,9 @@
+from __future__ import print_function
 import numpy as np
 import time
 #import matplotlib.pyplot as plt
 from math import exp, log, floor, fabs, pi, sqrt, pow
+
 # from plot_bird.py import PlotBirdGraph
 
 def LagCorrelation(v1, v2, lag):
@@ -101,7 +103,7 @@ def GetValidEdges(data, zero_inds):
 	map_m = dim
 	map_n = dim
 
-	Corrs = np.zeros((map_m,map_n,t_range));
+	Corrs = np.zeros((map_m*map_n,map_m*map_n,t_range));
 	# This will change for the regions we are using 
 	for t in range(0, t_range):
 		for i in range(0, map_m*map_n):
@@ -111,7 +113,9 @@ def GetValidEdges(data, zero_inds):
 			for j in neigh:
 				# if j%map_n == i//map_n: continue;
 				if j in zero_inds: continue;
-				Corrs[i//map_m,j%map_m,t] = FisherTransform(LagCorrelation(data[i,:], data[j,:], t));
+				if(Corrs[i,j,t] == 0):
+					Corrs[i,j,t] = FisherTransform(LagCorrelation(data[i,:], data[j,:], t));
+					Corrs[j, i, t] = Corrs[i, j, t];
 				# Corrs[i,j,t] = FisherTransform(LagCorrelation(data[i,:], data[j,:], t));
 	
 	# print np.count_nonzero(Corrs[:,:, 0]);
@@ -123,14 +127,15 @@ def GetValidEdges(data, zero_inds):
 	std_by_t = np.zeros(t_range)				
 	# get the max locations and values
 	for t in range(0, t_range):
-		# std_by_t[t] = np.std(Corrs[:,:,t])
-		std_by_t[t] =  GetStdWithoutDiag( Corrs[:,:,t] )
+		std_by_t[t] = np.std(Corrs[:,:,t])
+		# std_by_t[t] =  GetStdWithoutDiag( Corrs[:,:,t] )
 		for i in range(0, num_res_per_lag):
 			max_locs[t*num_res_per_lag+i] = np.argmax(np.fabs(Corrs[:,:,t]))
 			max_corrs[t*num_res_per_lag+i] = np.max(np.fabs(Corrs[:,:,t])) 
 			# print "Result" + str(i) + "  " +  str(Corrs[max_locs[t+i]])
-			new_i = max_locs[t*num_res_per_lag+i]//map_n
-			new_j = int(max_locs[t*num_res_per_lag+i]%map_n)
+			
+			new_i = max_locs[t*num_res_per_lag+i]//(map_n*map_m)
+			new_j = int(max_locs[t*num_res_per_lag+i]%(map_n*map_m))
 			Corrs[new_i, new_j, t] = -1;
 	
 	
@@ -148,7 +153,7 @@ def GetValidEdges(data, zero_inds):
 	for i in range(0, len(p_val)):
 		# make a tuple with (flat loc    pval      tval )
 		p_val_w_ind.append((max_locs[i], p_val[i], i//num_res_per_lag))
-		print('edge: {:d}--->{:d}, p-val={:f}, t={:d}'.format(int(max_locs[i]//map_n), int(max_locs[i]%map_n), p_val[i], i//num_res_per_lag));
+		print('edge: {:d}--->{:d}, p-val={:e}, t={:d}'.format(int(max_locs[i]//(map_n*map_m)), int(max_locs[i]%(map_n*map_m)), p_val[i], i//num_res_per_lag));
 	sorted_p_val = sorted(p_val_w_ind, key=lambda tup: tup[1])
 	# print "\nSorted P vals:"
 	# print sorted_p_val	
@@ -159,11 +164,14 @@ def GetValidEdges(data, zero_inds):
 	edge_list = []
 	# print str(len(sorted_p_val)) + "VS" + str(k)
 	for i in range(0, k+1):
-		edge_list.append( (sorted_p_val[i][0]//map_n, sorted_p_val[i][0]%map_n, sorted_p_val[i][1], sorted_p_val[i][2]))
+		# edge_list.append( (sorted_p_val[i][0]//map_n, sorted_p_val[i][0]%map_n, sorted_p_val[i][1], sorted_p_val[i][2]))
+		# plot input structure
+		edge_list.append( ( sorted_p_val[i][0]//(map_n*map_m) ,sorted_p_val[i][0]%(map_n*map_m), sorted_p_val[i][1], sorted_p_val[i][2]) )
 		# print('edge: {:d}--->{:d}, p-val={:f}  t={:d}  '.format(int(floor(max_locs[sorted_p_val[i][0]]/n)), max_locs[sorted_p_val[i][0]]%n, sorted_p_val[i][1], sorted_p_val[i][0]))	
 	
+
 	for edge in edge_list:
-		print(edge)
+		print('[{:d},{:d},0.5], '.format(int(edge[0]), int(edge[1])), end="")
 	# print max_locs
 	print('\n')
 	# print max_corrs
