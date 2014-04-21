@@ -20,17 +20,12 @@ m.drawcoastlines()
 m.drawcountries(linewidth=2)
 m.drawstates()
 
-# fill the background (the oceans)
 m.drawmapboundary(fill_color='aqua')
-# fill the continental area
-# we color the lakes like the oceans
 m.fillcontinents(color='coral',lake_color='aqua')
-
-# draw parallels and meridians
 m.drawparallels(np.arange(25,65,20),labels=[1,0,0,0])
 m.drawmeridians(np.arange(-120,-40,20),labels=[0,0,0,1])
 
-cities = []*len(coords);
+#cities = []*len(coords);
 lat = coords[0,:];
 lon = coords[1,:];
 
@@ -48,23 +43,15 @@ weights = 3*edges[:,2].T;
 colors = weights;
 max_weight = weights.max();
 colors = 1 - (colors/max_weight); #normalize to 0..1 and reverse
+
 sx, sy = m(edge_lons_src, edge_lats_src);
 tx, ty = m(edge_lons_trg, edge_lats_trg);
 
-# points = np.array([x, y]).T.reshape(-1, 1, 2)
 x, y = m(lon, lat);
 plt.plot(x, y, 'ro', markersize=2)
-# segments = np.concatenate([np.array(edge_lats,ndmin=2), np.array(edge_lons,ndmin=2)], axis=0)
-# lc = LineCollection(segments, linewidths=weights,colors='blue')
-# m.add_collection(lc)
-# plt.plot([70, 70], [100, 250], 'k-', lw=2)
+
+# use line collections if this slows down
 for i in range(len(weights)-1):
     plt.plot([sx[0][i], tx[0][i]], [sy[0][i], ty[0][i]], linewidth=weights[i], color=my_color(colors[i]));
-
-
-# #for each city,
-# for city, xc, yc in zip(cities, x, y):
-# 	draw the city name in a yellow (shaded) box
-# 	plt.text(xc+250000, yc-150000, "bird", bbox=dict(facecolor='yellow', alpha=0.5))
 
 plt.show()
