@@ -69,11 +69,17 @@ def Get8Neighbors(map_m, map_n, i):
 		neigh.append(j);
 	return neigh
 
+def FindZeroTimeSeries(data):
+	[n,t] = data.shape
+	bad_inds = [];
+	for row in range(0, n):
+		if np.sum(data[row, :]) < 1.:
+			bad_inds.append(row);
+	return bad_inds
 
 
-
-def GetValidEdges(data):
-	t_range = 1;
+def GetValidEdges(data, zero_inds):
+	t_range = 5;
 	[n,tn] = np.shape(data)
 	corr_list = []
 
@@ -86,17 +92,13 @@ def GetValidEdges(data):
 	# This will change for the regions we are using 
 	for t in range(0, t_range):
 		for i in range(0, map_m*map_n):
+			if i in zero_inds: continue;
 			neigh = Get4Neighbors(map_m, map_n, i)
 			for j in neigh:
+				if j in zero_inds: continue;
 				Corrs[i,j,t] = FisherTransform(LagCorrelation(data[i,:], data[j,:], t));
 
-	# for t in range(0, t_range):
-	# 	for i in range(0,n):
-	# 		for j in range(0,n):
-	# 			if i == j : continue
-	# 			Corrs[i,j,t] = FisherTransform(LagCorrelation(data[i,:], data[j,:], t));
-
-	print Corrs[:,:, 0];
+	# print Corrs[:,:, 0];
 
 	max_corrs = np.zeros(t_range)
 	max_locs = []				
@@ -119,10 +121,10 @@ def GetValidEdges(data):
 		edge_list.append( (int(floor(max_locs[sorted_p_val[i][0]]/n)), max_locs[sorted_p_val[i][0]]%n, sorted_p_val[i][0]) )
 		# print('edge: {:d}--->{:d}, p-val={:f}  t={:d}  '.format(int(floor(max_locs[sorted_p_val[i][0]]/n)), max_locs[sorted_p_val[i][0]]%n, sorted_p_val[i][1], sorted_p_val[i][0]))	
 	
-	# for edge in edge_list:
-	# 	print edge
+	for edge in edge_list:
+		print edge
 	# print max_locs
-	# print '\n'
+	print '\n'
 	# print max_corrs
 	return 0
 
@@ -174,8 +176,9 @@ def RunPinkNoiseTest():
 #bird_locs = np.genfromtxt('bird_timeseries.csv', delimiter=',');
 coords = np.genfromtxt('bird_coords.csv', delimiter=',');
 ts = np.genfromtxt('bird_timeseries.csv', delimiter=',');
+zero_inds = FindZeroTimeSeries(ts);
 
 print 
 a = time.clock()
-GetValidEdges(ts)
+GetValidEdges(ts, zero_inds)
 print time.clock() - a

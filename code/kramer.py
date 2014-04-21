@@ -13,6 +13,7 @@ def CrossCorrijAtLagT(data, t, i, j):
 	accu = 0;
 	for r in range(0, tn-t-1):
 		accu += (data[i,r] - mui) * (data[j,r+t] - muj);
+	print accu/(sigi*sigj*(tn-t-1));
 	return accu/(sigi*sigj*(tn-t-1));
 
 def FisherTransform(Cijt):
