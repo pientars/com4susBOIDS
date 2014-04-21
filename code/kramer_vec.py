@@ -70,13 +70,16 @@ def Get8Neighbors(map_m, map_n, i):
 	return neigh
 
 
-def GetValidEdges(data, t_range):
+
+
+def GetValidEdges(data):
+	t_range = 1;
 	[n,tn] = np.shape(data)
 	corr_list = []
 
-	# m x n 
-	map_m = 3
-	map_n = 4
+	map_m = 50
+	map_n = 50
+
 	Corrs = np.zeros((n,n,t_range));
 	# This will change for the regions we are using 
 	for t in range(0, t_range):
@@ -166,12 +169,10 @@ def RunPinkNoiseTest():
 		
 # 	# v1 = np.array([1., 2., 3., 4., 5., 6., 7.])
 # 	# v2 = np.array([1., 1., 1., 4., 5., 6., 7.])
-data = PinkNoise(.33, 12, 20)
-data[1, :] *= .2;
-data[1, :] += data[2,:]*.5
-data[3, :] += data[4,:]*.5
+bird_locs = np.genfromtxt('bird_ts.csv', delimiter=',');
+print 
 a = time.clock()
-GetValidEdges(data, 3)
+# GetValidEdges(data, 3)
 print time.clock() - a
 
 
