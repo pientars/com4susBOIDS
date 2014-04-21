@@ -4,9 +4,9 @@ from matplotlib.collections import LineCollection
 import numpy as np
 import csv
 
-def 2:
+def plot_ts(node1, node2):
 	ts = np.genfromtxt('bird_timeseries.csv', delimiter=',');
-	x = np.linspace(0,10,52);
+	x = np.linspace(0,52,52);
 	y = ts[node1,:];
 	plt.plot(x, y);
 	plt.hold(True);
