@@ -93,7 +93,7 @@ def GetStdWithoutDiag(mat):
 	return np.std(temp)
 
 
-def GetValidEdges(data, zero_inds, time_start, time_stop):
+def GetValidEdges(data, zero_inds, time_start, time_stop, graphwriter):
 	t_range = 4;
 	[n,tn] = np.shape(data)
 	corr_list = []
@@ -126,19 +126,18 @@ def GetValidEdges(data, zero_inds, time_start, time_stop):
 	# print
 
 	std_by_t = np.zeros(t_range)				
-  #write to file  
-	with open('map_vals.csv', 'wb') as csvfile:
-		graphwriter = csv.writer(csvfile, delimiter=',', dialect='excel');
-		for t in range(0, t_range):
-			std_by_t[t] = np.std(Corrs[:,:,t])
-			for i in range(0, map_m*map_n):
-				if i in zero_inds: continue;
-				neigh = Get8Neighbors(map_m, map_n, i)
-				# print neigh
-				for j in neigh:
-					# if j%map_n == i//map_n: continue;
-					if j in zero_inds: continue;
-					graphwriter.writerow([t,i,j, ProbZ(Corrs[i,j,t]/std_by_t[t], tn)])
+	# write to file 
+	graphwriter = csv.writer(csvfile, delimiter=',', dialect='excel');
+	for t in range(0, t_range):
+		std_by_t[t] = np.std(Corrs[:,:,t])
+		for i in range(0, map_m*map_n):
+			if i in zero_inds: continue;
+			neigh = Get8Neighbors(map_m, map_n, i)
+			# print neigh
+			for j in neigh:
+				# if j%map_n == i//map_n: continue;
+				if j in zero_inds: continue;
+				graphwriter.writerow([t,i,j, ProbZ(Corrs[i,j,t]/std_by_t[t], tn)])
 
 
 	max_corrs = np.zeros(t_range*num_res_per_lag)
@@ -218,8 +217,9 @@ ts = np.genfromtxt('bird_timeseries.csv', delimiter=',');
 zero_inds = FindZeroTimeSeries(ts);
 
 a = time.clock()
-for i in range(0,40,3):
-	GetValidEdges(ts, zero_inds, i, i+10)
+with open('map_vals.csv', 'wb') as csvfile:
+	for i in range(0,40,3):
+		GetValidEdges(ts, zero_inds, i, i+10)
 print(time.clock() - a)
 
 
