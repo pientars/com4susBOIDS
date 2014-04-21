@@ -33,14 +33,13 @@
 
 \DeclareGraphicsRule{.JPG}{eps}{*}{`jpeg2ps #1}
 
-\title{Mining eBird Networks\\ Project Proposal\vspace{-8pt}}
+\title{Migration Network Inference with eBird\\ Final Report\vspace{-8pt}}
 \author{Casey Battaglino\\Robert Pienta}
 \date{}
 \begin{document}
 \maketitle
 \begin{multicols}{2}
 \section{Introduction} \vspace{-10 pt}
-%\tod{Birds are beautiful and we need to understand more about how they interact as seasonally transient members of our ecosystem.}
 eBird\cite{DBLP:conf/iaai/KellingGFLWYDG12} is a `citizen science' project that allows for users to report and store bird sightings online. This allows for the crowd-sourcing of bird identification and monitoring, a process that would otherwise require massive amounts of time and effort from researchers. 
 
 While this removes the ``birden'' of data collection from experts, it also introduces a number of new problems. In particular, it introduces a higher probability of misidentification (when non-experts attempt to identify birds), and naturally produces more data in areas of higher human population density (the problem of spatial bias). Thus, data must be sanitized and normalized before it can be used to actually model bird presence. Solutions to these particular problems are presented by Kelling, et. al \cite{DBLP:conf/iaai/KellingGFLWYDG12}.

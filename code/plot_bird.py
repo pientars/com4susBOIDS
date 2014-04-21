@@ -4,12 +4,27 @@ from matplotlib.collections import LineCollection
 import numpy as np
 import csv
 
+def plot_ts(node1, node2):
+	ts = np.genfromtxt('bird_timeseries.csv', delimiter=',');
+	x = np.linspace(0,10,52);
+	y = ts[node1,:];
+	plt.plot(x, y);
+	plt.hold(True);
+	y = ts[node2,:];
+	plt.plot(x, y);
+	plt.show();
+	plt.hold(False);
+
+
 def my_color(val):
     """There're better ways to generate unique colors, but this isn't awful."""
     return plt.cm.RdBu(val)
 
 def PlotBirdGraph(edges):
 	data = np.genfromtxt('bird_coords.csv', delimiter=',');
+
+	data = np.genfromtxt('map_vals.csv', delimiter=',');
+
 	coords = data[:,3:5].transpose();
 
 	# Lambert Conformal map of USA lower 48 states
