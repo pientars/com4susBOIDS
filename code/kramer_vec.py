@@ -97,6 +97,7 @@ def GetValidEdges(data, zero_inds, time_start, time_stop, graphwriter):
 	t_range = 4;
 	[n,tn] = np.shape(data)
 	corr_list = []
+	action_threshold = 0.05
 
 	num_res_per_lag = 20;
 	dim = 50
@@ -114,6 +115,7 @@ def GetValidEdges(data, zero_inds, time_start, time_stop, graphwriter):
 			for j in neigh:
 				# if j%map_n == i//map_n: continue;
 				if j in zero_inds: continue;
+				if np.max(data[i, time_start:time_stop]) < action_threshold or np.max(data[j, time_start:time_stop]) < action_threshold  : continue
 				if(Corrs[i,j,t] == 0):
 					Corrs[i,j,t] = FisherTransform(LagCorrelation(data[i,time_start:time_stop], data[j,time_start:time_stop], t));
 					Corrs[j, i, t] = Corrs[i, j, t];
@@ -127,7 +129,7 @@ def GetValidEdges(data, zero_inds, time_start, time_stop, graphwriter):
 
 	std_by_t = np.zeros(t_range)				
 	# write to file 
-	graphwriter = csv.writer(csvfile, delimiter=',', dialect='excel');
+	# graphwriter = csv.writer(csvfile, delimiter=',', dialect='excel');
 	for t in range(0, t_range):
 		std_by_t[t] = np.std(Corrs[:,:,t])
 		for i in range(0, map_m*map_n):
@@ -137,7 +139,8 @@ def GetValidEdges(data, zero_inds, time_start, time_stop, graphwriter):
 			for j in neigh:
 				# if j%map_n == i//map_n: continue;
 				if j in zero_inds: continue;
-				graphwriter.writerow([t,i,j, ProbZ(Corrs[i,j,t]/std_by_t[t], tn)])
+				if np.max(data[i, time_start:time_stop]) < action_threshold or np.max(data[j, time_start:time_stop]) < action_threshold  : continue
+				graphwriter.writerow([time_start,t,i,j, ProbZ(Corrs[i,j,t]/std_by_t[t], tn)])
 
 
 	max_corrs = np.zeros(t_range*num_res_per_lag)
@@ -218,8 +221,9 @@ zero_inds = FindZeroTimeSeries(ts);
 
 a = time.clock()
 with open('map_vals.csv', 'wb') as csvfile:
-	for i in range(0,40,3):
-		GetValidEdges(ts, zero_inds, i, i+10)
+	graphwriter = csv.writer(csvfile, delimiter=',', dialect='excel');
+	for i in range(0,42,5):
+		GetValidEdges(ts, zero_inds, i, i+10, graphwriter)
 print(time.clock() - a)
 
 
