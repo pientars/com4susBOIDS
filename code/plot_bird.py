@@ -68,7 +68,7 @@ for time in range(8):
 	tx, ty = m(edge_lons_trg, edge_lats_trg);
 
 	x, y = m(lon, lat);
-	#plt.plot(x, y, 'ro', markersize=2)
+	plt.plot(x, y, 'ro', markersize=2)
 
 	# use line collections if this slows down
 	for i in range(len(weights)-1):
@@ -76,5 +76,4 @@ for time in range(8):
 			plt.plot([sx[0][i], tx[0][i]], [sy[0][i], ty[0][i]], linewidth=weights[i], color=my_color(colors[i]));
 
 	plt.savefig('bird' + str(window) + '.png')
-	plt.hold(False);
 	#plt.show()
