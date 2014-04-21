@@ -54,16 +54,14 @@ with open('bird_coords.csv', 'wb') as csvfile:
 		# place the node coordinates in the center of the bounding box
 		node_lat = graph_lats[i] + (lat_dim / 2);
 		node_long = graph_longs[j] + (long_dim / 2);
-
 		data_to_write = [num_ts[i][j], i, j, node_lat, node_long];#, graph[i][j]];
 		graphwriter.writerow(data_to_write);
 
+#np.savetxt("bird.timeseries.csv", graph, delimiter=",")
 with open('bird_timeseries.csv', 'wb') as csvfile:
-	graphwriter = csv.writer(csvfile, delimiter=',', dialect='excel');
+	graphwriter = csv.writer(csvfile, delimiter=',');
 	for i,j in np.ndindex((num_div, num_div)):
-		# place the node coordinates in the center of the bounding box
 		node_lat = graph_lats[i] + (lat_dim / 2);
 		node_long = graph_longs[j] + (long_dim / 2);
-
-		data_to_write = [graph[i][j]];
+		data_to_write = np.asarray(graph[i][j]);
 		graphwriter.writerow(data_to_write);

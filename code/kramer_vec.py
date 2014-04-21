@@ -169,10 +169,13 @@ def RunPinkNoiseTest():
 		
 # 	# v1 = np.array([1., 2., 3., 4., 5., 6., 7.])
 # 	# v2 = np.array([1., 1., 1., 4., 5., 6., 7.])
-bird_locs = np.genfromtxt('bird_ts.csv', delimiter=',');
+#bird_locs = np.genfromtxt('bird_timeseries.csv', delimiter=',');
+coords = np.genfromtxt('bird_coords.csv', delimiter=',');
+ts = np.genfromtxt('bird_timeseries.csv', delimiter=',');
+
 print 
 a = time.clock()
-# GetValidEdges(data, 3)
+GetValidEdges(ts)
 print time.clock() - a
 
 
