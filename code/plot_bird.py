@@ -25,10 +25,10 @@ def get_edges_from_period(period):
 	edges = edges[:,2::];
 	return edges;
 
-data = np.genfromtxt('bird_coords.csv', delimiter=',');
-coords = data[:,3:5].transpose();
+def plot_birds_okay(step):
+	data = np.genfromtxt('bird_coords.csv', delimiter=',');
+	coords = data[:,3:5].transpose();
 
-for time in range(8):
 	# Lambert Conformal map of USA lower 48 states
 	m = Basemap(llcrnrlon=-119, llcrnrlat=22, urcrnrlon=-64,
 	urcrnrlat=49, projection='lcc', lat_1=33, lat_2=45,
@@ -79,3 +79,6 @@ for time in range(8):
 	plt.savefig('bird' + str(window) + '.png')
 	plt.hold(False);
 	#plt.show()
+
+for time in range(8):
+	plot_birds_okay(time);
