@@ -140,7 +140,7 @@ def GetValidEdges(data, zero_inds, time_start, time_stop):
 	
 	
 	p_val = []
-	print(std_by_t)
+	# print(std_by_t)
 	# print "FUCKFUCKFUCKFUCKFUCK"
 	# print max_corrs
 	# print max_locs
@@ -202,15 +202,8 @@ ts = np.genfromtxt('bird_timeseries.csv', delimiter=',');
 zero_inds = FindZeroTimeSeries(ts);
 
 a = time.clock()
-GetValidEdges(ts, zero_inds, 0, 10)
-GetValidEdges(ts, zero_inds, 5, 15)
-GetValidEdges(ts, zero_inds, 10, 20)
-GetValidEdges(ts, zero_inds, 15, 25)
-GetValidEdges(ts, zero_inds, 20, 30)
-GetValidEdges(ts, zero_inds, 25, 35)
-GetValidEdges(ts, zero_inds, 30, 40)
-GetValidEdges(ts, zero_inds, 35, 45)
-GetValidEdges(ts, zero_inds, 40, 50)
+for i in range(0,40,3):
+	GetValidEdges(ts, zero_inds, i, i+10)
 print(time.clock() - a)
 
 
