@@ -1,5 +1,6 @@
 from __future__ import print_function
 import numpy as np
+import csv
 import time
 #import matplotlib.pyplot as plt
 from math import exp, log, floor, fabs, pi, sqrt, pow
@@ -116,18 +117,33 @@ def GetValidEdges(data, zero_inds, time_start, time_stop):
 				if(Corrs[i,j,t] == 0):
 					Corrs[i,j,t] = FisherTransform(LagCorrelation(data[i,time_start:time_stop], data[j,time_start:time_stop], t));
 					Corrs[j, i, t] = Corrs[i, j, t];
-				# Corrs[i,j,t] = FisherTransform(LagCorrelation(data[i,:], data[j,:], t));
-	
+						
+						# print('[{:d},{:d},{:f}], '.format(i,j, Corrs[i,j,t]), end="")
+					# Corrs[i,j,t] = FisherTransform(LagCorrelation(data[i,:], data[j,:], t));
+		
 	# print np.count_nonzero(Corrs[:,:, 0]);
 	# print Corrs[:,:, 0];
 	# print
 
+	std_by_t = np.zeros(t_range)				
+  #write to file  
+	with open('map_vals.csv', 'wb') as csvfile:
+		graphwriter = csv.writer(csvfile, delimiter=',', dialect='excel');
+		for t in range(0, t_range):
+			std_by_t[t] = np.std(Corrs[:,:,t])
+			for i in range(0, map_m*map_n):
+				if i in zero_inds: continue;
+				neigh = Get8Neighbors(map_m, map_n, i)
+				# print neigh
+				for j in neigh:
+					# if j%map_n == i//map_n: continue;
+					if j in zero_inds: continue;
+					graphwriter.writerow([t,i,j, ProbZ(Corrs[i,j,t]/std_by_t[t], tn)])
+
+
 	max_corrs = np.zeros(t_range*num_res_per_lag)
 	max_locs = np.zeros(t_range*num_res_per_lag)				
-	std_by_t = np.zeros(t_range)				
-	# get the max locations and values
 	for t in range(1, t_range):
-		std_by_t[t] = np.std(Corrs[:,:,t])
 		# std_by_t[t] =  GetStdWithoutDiag( Corrs[:,:,t] )
 		for i in range(0, num_res_per_lag):
 			max_locs[t*num_res_per_lag+i] = np.argmax(np.fabs(Corrs[:,:,t]))
@@ -169,12 +185,12 @@ def GetValidEdges(data, zero_inds, time_start, time_stop):
 		edge_list.add( ( sorted_p_val[i][0]//(map_n*map_m) ,sorted_p_val[i][0]%(map_n*map_m)))  #, sorted_p_val[i][1], sorted_p_val[i][2]) )
 		# print('edge: {:d}--->{:d}, p-val={:f}  t={:d}  '.format(int(floor(max_locs[sorted_p_val[i][0]]/n)), max_locs[sorted_p_val[i][0]]%n, sorted_p_val[i][1], sorted_p_val[i][0]))	
 	
-	print('TIME: {:d}    to    {:d}'.format(time_start, time_stop))
-	for edge in edge_list:
-		print('[{:d},{:d},0.5], '.format(int(edge[0]), int(edge[1])), end="")
-	# print max_locs
-	print('\n')
-	# print max_corrs
+	# print('TIME: {:d}    to    {:d}'.format(time_start, time_stop))
+	# for edge in edge_list:
+	# 	print('[{:d},{:d},0.5], '.format(int(edge[0]), int(edge[1])), end="")
+	# # print max_locs
+	# print('\n')
+	# # print max_corrs
 	return 0
 
 
