@@ -77,8 +77,10 @@ def GetValidEdges(data):
 	[n,tn] = np.shape(data)
 	corr_list = []
 
-	map_m = 50
-	map_n = 50
+	dim = 50
+	assert(int(np.sqrt(n)) == dim)
+	map_m = dim
+	map_n = dim
 
 	Corrs = np.zeros((n,n,t_range));
 	# This will change for the regions we are using 
@@ -177,9 +179,3 @@ print
 a = time.clock()
 GetValidEdges(ts)
 print time.clock() - a
-
-
-
-
-
-
