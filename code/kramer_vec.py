@@ -92,8 +92,8 @@ def GetStdWithoutDiag(mat):
 	return np.std(temp)
 
 
-def GetValidEdges(data, zero_inds):
-	t_range = 8;
+def GetValidEdges(data, zero_inds, time_start, time_stop):
+	t_range = 4;
 	[n,tn] = np.shape(data)
 	corr_list = []
 
@@ -114,7 +114,7 @@ def GetValidEdges(data, zero_inds):
 				# if j%map_n == i//map_n: continue;
 				if j in zero_inds: continue;
 				if(Corrs[i,j,t] == 0):
-					Corrs[i,j,t] = FisherTransform(LagCorrelation(data[i,:], data[j,:], t));
+					Corrs[i,j,t] = FisherTransform(LagCorrelation(data[i,time_start:time_stop], data[j,time_start:time_stop], t));
 					Corrs[j, i, t] = Corrs[i, j, t];
 				# Corrs[i,j,t] = FisherTransform(LagCorrelation(data[i,:], data[j,:], t));
 	
@@ -126,7 +126,7 @@ def GetValidEdges(data, zero_inds):
 	max_locs = np.zeros(t_range*num_res_per_lag)				
 	std_by_t = np.zeros(t_range)				
 	# get the max locations and values
-	for t in range(0, t_range):
+	for t in range(1, t_range):
 		std_by_t[t] = np.std(Corrs[:,:,t])
 		# std_by_t[t] =  GetStdWithoutDiag( Corrs[:,:,t] )
 		for i in range(0, num_res_per_lag):
@@ -153,7 +153,7 @@ def GetValidEdges(data, zero_inds):
 	for i in range(0, len(p_val)):
 		# make a tuple with (flat loc    pval      tval )
 		p_val_w_ind.append((max_locs[i], p_val[i], i//num_res_per_lag))
-		print('edge: {:d}--->{:d}, p-val={:e}, t={:d}'.format(int(max_locs[i]//(map_n*map_m)), int(max_locs[i]%(map_n*map_m)), p_val[i], i//num_res_per_lag));
+		# print('edge: {:d}--->{:d}, p-val={:e}, t={:d}'.format(int(max_locs[i]//(map_n*map_m)), int(max_locs[i]%(map_n*map_m)), p_val[i], i//num_res_per_lag));
 	sorted_p_val = sorted(p_val_w_ind, key=lambda tup: tup[1])
 	# print "\nSorted P vals:"
 	# print sorted_p_val	
@@ -161,15 +161,15 @@ def GetValidEdges(data, zero_inds):
 
 	q = 0.15;
 	k = FDRController(sorted_p_val, q)
-	edge_list = []
+	edge_list = set()
 	# print str(len(sorted_p_val)) + "VS" + str(k)
 	for i in range(0, k+1):
 		# edge_list.append( (sorted_p_val[i][0]//map_n, sorted_p_val[i][0]%map_n, sorted_p_val[i][1], sorted_p_val[i][2]))
 		# plot input structure
-		edge_list.append( ( sorted_p_val[i][0]//(map_n*map_m) ,sorted_p_val[i][0]%(map_n*map_m), sorted_p_val[i][1], sorted_p_val[i][2]) )
+		edge_list.add( ( sorted_p_val[i][0]//(map_n*map_m) ,sorted_p_val[i][0]%(map_n*map_m)))  #, sorted_p_val[i][1], sorted_p_val[i][2]) )
 		# print('edge: {:d}--->{:d}, p-val={:f}  t={:d}  '.format(int(floor(max_locs[sorted_p_val[i][0]]/n)), max_locs[sorted_p_val[i][0]]%n, sorted_p_val[i][1], sorted_p_val[i][0]))	
 	
-
+	print('TIME: {:d}    to    {:d}'.format(time_start, time_stop))
 	for edge in edge_list:
 		print('[{:d},{:d},0.5], '.format(int(edge[0]), int(edge[1])), end="")
 	# print max_locs
@@ -202,5 +202,24 @@ ts = np.genfromtxt('bird_timeseries.csv', delimiter=',');
 zero_inds = FindZeroTimeSeries(ts);
 
 a = time.clock()
-GetValidEdges(ts, zero_inds)
+GetValidEdges(ts, zero_inds, 0, 10)
+GetValidEdges(ts, zero_inds, 5, 15)
+GetValidEdges(ts, zero_inds, 10, 20)
+GetValidEdges(ts, zero_inds, 15, 25)
+GetValidEdges(ts, zero_inds, 20, 30)
+GetValidEdges(ts, zero_inds, 25, 35)
+GetValidEdges(ts, zero_inds, 30, 40)
+GetValidEdges(ts, zero_inds, 35, 45)
+GetValidEdges(ts, zero_inds, 40, 50)
 print(time.clock() - a)
+
+
+
+
+
+
+
+
+
+
+
