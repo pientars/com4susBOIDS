@@ -238,7 +238,7 @@ a = time.clock()
 with open('map_vals.csv', 'wb') as csvfile:
 	graphwriter = csv.writer(csvfile, delimiter=',', dialect='excel');
 	for i in range(0,42,2):
-		GetValidEdges(ts, zero_inds, i, i+5, graphwriter)
+		GetValidEdges(ts, zero_inds, i, i+9, graphwriter)
 print(time.clock() - a)
 
 
