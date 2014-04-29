@@ -1,31 +1,47 @@
-\documentclass[11pt]{sigplanconf}
-\usepackage{amsmath}
-\usepackage{tikz}
-\usetikzlibrary{arrows}
+\documentclass{article} % For LaTeX2e
+\usepackage{nips13submit_e,times}
+\usepackage{hyperref}
+\usepackage{url}
+%\documentstyle[nips13submit_09,times,art10]{article} % For LaTeX 2.09
 
-\begin{document}
-\special{papersize=8.5in,11in}
-\setlength{\pdfpageheight}{\paperheight}
-\setlength{\pdfpagewidth}{\paperwidth}
-
-\conferenceinfo{NOCONF '14}{April XX, 2014, Atlanta, GA, USA} 
-%\copyrightyear{2014} 
-\copyrightdata{978-1-nnnn-nnnn-n/yy/mm} 
-\doi{nnnnnnn.nnnnnnn}
-
-\titlebanner{banner above paper title}        % These are ignored unless
-\preprintfooter{short description of paper}   % 'preprint' option specified.
 
 \title{Migration Network Inference with eBird}
-\authorinfo{Casey Battaglino and Robert Pienta}
-           {Georgia Institute of Technology}
-           {cbattaglino3@gatech.edu, pientars@gatech.edu}
 
+\author{
+Casey Battaglino \\
+Department of Computational Science and Engineering\\
+Georgia Institute of Technology\\
+Atlanta, GA 30318 \\
+\texttt{cbattaglino3@gatech.edu} \\
+\And
+Robert Pienta \\
+Georgia Institute of Technology \\
+Atlanta, GA 30318 \\
+\texttt{pientars@gatech.edu} \\
+}
+
+% The \author macro works with any number of authors. There are two commands
+% used to separate the names and addresses of multiple authors: \And and \AND.
+%
+% Using \And between authors leaves it to \LaTeX{} to determine where to break
+% the lines. Using \AND forces a linebreak at that point. So, if \LaTeX{}
+% puts 3 of 4 authors names on the first line, and the last on the second
+% line, try using \AND instead of \And before the third author name.
+
+\newcommand{\fix}{\marginpar{FIX}}
+\newcommand{\new}{\marginpar{NEW}}
+
+%\nipsfinalcopy % Uncomment for camera-ready version
+
+\begin{document}
 \maketitle
 
 \begin{abstract}
 eBird is a citizen science application that employs a statistical model to predict the spatial and temporal distribution of bird species throughout the United States. However, they do not offer a migration model. We discuss the process of `network inference,' initially developed to discover implicit networks in the brain from time-series data. We then discuss how we efficiently adapt this process to bird presence data, and analyze its suitability for detecting bird migration networks. 
 \end{abstract}
+
+\section{Submission of papers to NIPS 2013}
+
 
 \section{Introduction}
 eBird\cite{DBLP:conf/iaai/KellingGFLWYDG12} is a `citizen science' project that allows for users to report and store bird sightings online. This allows for the crowd-sourcing of bird identification and monitoring, a process that would otherwise require massive amounts of time and effort from researchers. 
@@ -74,6 +90,5 @@ Another migration study, using Hidden Markov models on synthetic data, was perfo
 
 \bibliographystyle{plain}
 \bibliography{bib}
-
 
 \end{document}
