@@ -99,7 +99,7 @@ def GetValidEdges(data, zero_inds, time_start, time_stop, graphwriter):
 	corr_list = []
 	action_threshold = 0.05
 
-	num_res_per_lag = 20;
+	num_res_per_lag = 1;
 	dim = 50
 	assert(int(np.sqrt(n)) == dim)
 	map_m = dim
@@ -107,7 +107,7 @@ def GetValidEdges(data, zero_inds, time_start, time_stop, graphwriter):
 
 	Corrs = np.zeros((map_m*map_n,map_m*map_n,t_range));
 	# This will change for the regions we are using 
-	for t in range(0, t_range):
+	for t in range(1, t_range):
 		for i in range(0, map_m*map_n):
 			if i in zero_inds: continue;
 			neigh = Get8Neighbors(map_m, map_n, i)
@@ -126,12 +126,13 @@ def GetValidEdges(data, zero_inds, time_start, time_stop, graphwriter):
 	# print np.count_nonzero(Corrs[:,:, 0]);
 	# print Corrs[:,:, 0];
 	# print
-
+	max_freq = np.max(data)
 	std_by_t = np.zeros(t_range)				
 	# write to file 
 	# graphwriter = csv.writer(csvfile, delimiter=',', dialect='excel');
-	for t in range(0, t_range):
+	for t in range(1, t_range):
 		std_by_t[t] = np.std(Corrs[:,:,t])
+		print(std_by_t[t])
 		for i in range(0, map_m*map_n):
 			if i in zero_inds: continue;
 			neigh = Get8Neighbors(map_m, map_n, i)
@@ -140,60 +141,61 @@ def GetValidEdges(data, zero_inds, time_start, time_stop, graphwriter):
 				# if j%map_n == i//map_n: continue;
 				if j in zero_inds: continue;
 				if np.max(data[i, time_start:time_stop]) < action_threshold or np.max(data[j, time_start:time_stop]) < action_threshold  : continue
-				graphwriter.writerow([time_start,t,i,j, ProbZ(Corrs[i,j,t]/std_by_t[t], tn)])
+				alpha_value = ((np.max(data[i, time_start:time_stop])+np.max(data[j, time_start:time_stop]))/2) /max_freq
+				graphwriter.writerow([time_start,t,i,j, ProbZ(np.fabs(Corrs[i,j,t])/std_by_t[t], tn-t), alpha_value])
 
 
-	max_corrs = np.zeros(t_range*num_res_per_lag)
-	max_locs = np.zeros(t_range*num_res_per_lag)				
-	for t in range(1, t_range):
-		# std_by_t[t] =  GetStdWithoutDiag( Corrs[:,:,t] )
-		for i in range(0, num_res_per_lag):
-			max_locs[t*num_res_per_lag+i] = np.argmax(np.fabs(Corrs[:,:,t]))
-			max_corrs[t*num_res_per_lag+i] = np.max(np.fabs(Corrs[:,:,t])) 
-			# print "Result" + str(i) + "  " +  str(Corrs[max_locs[t+i]])
+	# max_corrs = np.zeros(t_range*num_res_per_lag)
+	# max_locs = np.zeros(t_range*num_res_per_lag)				
+	# for t in range(1, t_range):
+	# 	# std_by_t[t] =  GetStdWithoutDiag( Corrs[:,:,t] )
+	# 	for i in range(0, num_res_per_lag):
+	# 		max_locs[t*num_res_per_lag+i] = np.argmax(np.fabs(Corrs[:,:,t]))
+	# 		max_corrs[t*num_res_per_lag+i] = np.max(np.fabs(Corrs[:,:,t])) 
+	# 		# print "Result" + str(i) + "  " +  str(Corrs[max_locs[t+i]])
 			
-			new_i = max_locs[t*num_res_per_lag+i]//(map_n*map_m)
-			new_j = int(max_locs[t*num_res_per_lag+i]%(map_n*map_m))
-			Corrs[new_i, new_j, t] = -1;
+	# 		new_i = max_locs[t*num_res_per_lag+i]//(map_n*map_m)
+	# 		new_j = int(max_locs[t*num_res_per_lag+i]%(map_n*map_m))
+	# 		Corrs[new_i, new_j, t] = -1;
 	
 	
-	p_val = []
-	# print(std_by_t)
-	# print "FUCKFUCKFUCKFUCKFUCK"
-	# print max_corrs
-	# print max_locs
-	#Take all the edges with statistically significant edge chance
-	for c in range(0, len(max_corrs)):
-		p_val.append( 1.0-ProbZ(max_corrs[c]/std_by_t[c//num_res_per_lag], tn));
-
-	# p_val = map( (lambda x: 1.0-ProbZ(x, tn)), max_corrs/corr_std)
-	p_val_w_ind = []
-	for i in range(0, len(p_val)):
-		# make a tuple with (flat loc    pval      tval )
-		p_val_w_ind.append((max_locs[i], p_val[i], i//num_res_per_lag))
-		# print('edge: {:d}--->{:d}, p-val={:e}, t={:d}'.format(int(max_locs[i]//(map_n*map_m)), int(max_locs[i]%(map_n*map_m)), p_val[i], i//num_res_per_lag));
-	sorted_p_val = sorted(p_val_w_ind, key=lambda tup: tup[1])
-	# print "\nSorted P vals:"
-	# print sorted_p_val	
-
-
-	q = 0.15;
-	k = FDRController(sorted_p_val, q)
-	edge_list = set()
-	# print str(len(sorted_p_val)) + "VS" + str(k)
-	for i in range(0, k+1):
-		# edge_list.append( (sorted_p_val[i][0]//map_n, sorted_p_val[i][0]%map_n, sorted_p_val[i][1], sorted_p_val[i][2]))
-		# plot input structure
-		edge_list.add( ( sorted_p_val[i][0]//(map_n*map_m) ,sorted_p_val[i][0]%(map_n*map_m)))  #, sorted_p_val[i][1], sorted_p_val[i][2]) )
-		# print('edge: {:d}--->{:d}, p-val={:f}  t={:d}  '.format(int(floor(max_locs[sorted_p_val[i][0]]/n)), max_locs[sorted_p_val[i][0]]%n, sorted_p_val[i][1], sorted_p_val[i][0]))	
-	
-	# print('TIME: {:d}    to    {:d}'.format(time_start, time_stop))
-	# for edge in edge_list:
-	# 	print('[{:d},{:d},0.5], '.format(int(edge[0]), int(edge[1])), end="")
-	# # print max_locs
-	# print('\n')
+	# p_val = []
+	# # print(std_by_t)
+	# # print "FUCKFUCKFUCKFUCKFUCK"
 	# # print max_corrs
-	return 0
+	# # print max_locs
+	# #Take all the edges with statistically significant edge chance
+	# for c in range(0, len(max_corrs)):
+	# 	p_val.append( 1.0-ProbZ(max_corrs[c]/std_by_t[c//num_res_per_lag], tn));
+
+	# # p_val = map( (lambda x: 1.0-ProbZ(x, tn)), max_corrs/corr_std)
+	# p_val_w_ind = []
+	# for i in range(0, len(p_val)):
+	# 	# make a tuple with (flat loc    pval      tval )
+	# 	p_val_w_ind.append((max_locs[i], p_val[i], i//num_res_per_lag))
+	# 	# print('edge: {:d}--->{:d}, p-val={:e}, t={:d}'.format(int(max_locs[i]//(map_n*map_m)), int(max_locs[i]%(map_n*map_m)), p_val[i], i//num_res_per_lag));
+	# sorted_p_val = sorted(p_val_w_ind, key=lambda tup: tup[1])
+	# # print "\nSorted P vals:"
+	# # print sorted_p_val	
+
+
+	# q = 0.15;
+	# k = FDRController(sorted_p_val, q)
+	# edge_list = set()
+	# # print str(len(sorted_p_val)) + "VS" + str(k)
+	# for i in range(0, k+1):
+	# 	# edge_list.append( (sorted_p_val[i][0]//map_n, sorted_p_val[i][0]%map_n, sorted_p_val[i][1], sorted_p_val[i][2]))
+	# 	# plot input structure
+	# 	edge_list.add( ( sorted_p_val[i][0]//(map_n*map_m) ,sorted_p_val[i][0]%(map_n*map_m)))  #, sorted_p_val[i][1], sorted_p_val[i][2]) )
+	# 	# print('edge: {:d}--->{:d}, p-val={:f}  t={:d}  '.format(int(floor(max_locs[sorted_p_val[i][0]]/n)), max_locs[sorted_p_val[i][0]]%n, sorted_p_val[i][1], sorted_p_val[i][0]))	
+	
+	# # print('TIME: {:d}    to    {:d}'.format(time_start, time_stop))
+	# # for edge in edge_list:
+	# # 	print('[{:d},{:d},0.5], '.format(int(edge[0]), int(edge[1])), end="")
+	# # # print max_locs
+	# # print('\n')
+	# # # print max_corrs
+	# return 0
 
 
 
@@ -203,23 +205,16 @@ def PinkNoise(alpha, m, tn):
 	funky = np.vectorize(lambda x: 1/pow(x, alpha))
 	return funky(pdata)
 
-# for t  in range(20, 2000, 100):
-# data = PinkNoise(.33, 9, 10)
-# data[1, :] *= .1;
-# data[1, :] += data[2,:]*.5
-# data[3, :] += data[4,:]*.5
-
-# zero_inds = []
-	
-# 	# v1 = np.array([1., 2., 3., 4., 5., 6., 7.])
-# 	# v2 = np.array([1., 1., 1., 4., 5., 6., 7.])
-#bird_locs = np.genfromtxt('bird_timeseries.csv', delimiter=',');
 
 coords = np.genfromtxt('bird_coords.csv', delimiter=',');
 ts = np.genfromtxt('bird_timeseries.csv', delimiter=',');
+
+# coords = np.genfromtxt('cassins_vireo_coords.csv', delimiter=',');
+# ts = np.genfromtxt('cassins_vireo_timeseries.csv', delimiter=',');
 zero_inds = FindZeroTimeSeries(ts);
 
 a = time.clock()
+# with open('cassins_vireo_map_vals.csv', 'wb') as csvfile:
 with open('map_vals.csv', 'wb') as csvfile:
 	graphwriter = csv.writer(csvfile, delimiter=',', dialect='excel');
 	for i in range(0,42,5):
