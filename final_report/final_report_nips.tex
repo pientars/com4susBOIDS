@@ -116,7 +116,7 @@ The STEM data produced by eBird came in \texttt{Rdata} format. Thus, our first s
 Our network inference implementation then chooses a time-window of roughly 2 months and computes the cross-correlation for all candidate edges (which are the $8n$ 8-neighborhood edges noted above, minus any with incident nodes that have been filtered due to low population). We then perform the Fisher transformation of the correlations, and perform the significance test. Thus, the general process is as follows:
 
 \begin{enumerate}
-\item Filter out zero-population and low-action ($p_{active} < 0.1$) nodes
+\item Filter out zero-population and low-action ($p_{active} < 0.05$) nodes
 \item Compute spatially localized cross-correlations with lags $1\dots T, (T=10)$
 \item Use significance test to determine if cross-correlations are statistically valid
 \item Keep valid edges
@@ -125,8 +125,22 @@ Our network inference implementation then chooses a time-window of roughly 2 mon
 The edges generated for each time period are returned as a list of tuples which can then be plotted on a map.
 
 \section{Results}
+We generated a graph of bird movement over each a series of 2-month windows created by rolling each window 2 weeks at a time.
+The edges have transparency based on the average magnitude of the derivative, over the window, for both endpoints.
+The underlying color represents the calculated bird presence from the data.
+Edges with less movement--denoted by less change during the time window--will have considerably lighter colored edges in the graph.
+The full series of generated graphs can be found in \ref{appendicks}.
+
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=.9\textwidth]{../code/bird38.png}
+\caption{September through October the birds can be seen moving in two primary avenues, down the east coast flyway and down the Mississippi flyway.  Both routes are established migration patterns for many migratory species--including the treeswallow.}
+\label{figBidLouisiana}
+\end{figure}
 
 \section{Conclusion}
+
 
 \section{Future Work}
 Qualitatively analyzing networks gives a limited picture. Quantitative measures can leverage the data more deeply. While betweenness centrality could identify some important `bottleneck' nodes, we believe that a maximum-flow measure would be more suitable, as this could also identify important sources and sinks if modeled correctly.
@@ -137,6 +151,37 @@ The most important future work, were this to become a publication, is validation
 The data from eBird was already used by Hurlbert et al. in an investigation of red vireo migration; wherein they discovered a direct correlation between the migration patterns and the average temperature \cite{hurlbert}. 
 
 Another migration study, using Hidden Markov models on synthetic data, was performed by Sheldon, et. al \cite{conf/nips/SheldonEK07}. 
+
+\appendix
+\section{Appendix A}\label{appendicks}
+The following plots demonstrate the migration patterns extracted using our approach.
+Here each time window considered was 2-months wide and stepped over the entire year by 2 weeks at a time.
+ \begin{figure}\vspace{-20pt}
+\includegraphics[width =.5 \textwidth ]{../code/bird0.png}\vspace{-20pt}
+\includegraphics[width =.5 \textwidth ]{../code/bird2.png} \vspace{-20pt}
+\includegraphics[width =.5 \textwidth ]{../code/bird4.png}
+\includegraphics[width =.5 \textwidth ]{../code/bird6.png} \vspace{-20pt}
+\includegraphics[width =.5 \textwidth ]{../code/bird8.png}
+\includegraphics[width =.5 \textwidth ]{../code/bird10.png} \vspace{-20pt}
+\includegraphics[width =.5 \textwidth ]{../code/bird12.png}
+\includegraphics[width =.5 \textwidth ]{../code/bird14.png} \vspace{-20pt}
+\includegraphics[width =.5 \textwidth ]{../code/bird16.png}
+\includegraphics[width =.5 \textwidth ]{../code/bird18.png} \vspace{-20pt}
+\end{figure} 
+
+ \begin{figure}\vspace{-20pt}
+\includegraphics[width =.5 \textwidth ]{../code/bird20.png}\vspace{-20pt}
+\includegraphics[width =.5 \textwidth ]{../code/bird22.png} \vspace{-20pt}
+\includegraphics[width =.5 \textwidth ]{../code/bird24.png}
+\includegraphics[width =.5 \textwidth ]{../code/bird26.png} \vspace{-20pt}
+\includegraphics[width =.5 \textwidth ]{../code/bird28.png}
+\includegraphics[width =.5 \textwidth ]{../code/bird30.png} \vspace{-20pt}
+\includegraphics[width =.5 \textwidth ]{../code/bird32.png}
+\includegraphics[width =.5 \textwidth ]{../code/bird34.png} \vspace{-20pt}
+\includegraphics[width =.5 \textwidth ]{../code/bird36.png}
+\includegraphics[width =.5 \textwidth ]{../code/bird38.png} \vspace{-20pt}
+\end{figure} 
+
 
 \bibliographystyle{plain}
 \bibliography{bib}
