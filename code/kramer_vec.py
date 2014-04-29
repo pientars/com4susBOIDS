@@ -4,7 +4,7 @@ import csv
 import time
 #import matplotlib.pyplot as plt
 from math import exp, log, floor, fabs, pi, sqrt, pow
-from plot_bird import plot_ts
+# from plot_bird import plot_ts
 # from plot_bird.py import PlotBirdGraph
 
 def LagCorrelation(v1, v2, lag):
@@ -99,45 +99,49 @@ def GetDerivative(v1):
 		acc += np.abs(v1[i]-v1[i+1]);
 	return  acc/m;
 
-def GetValidEdges(data, zero_inds, time_start, time_stop, graphwriter):
-	t_range = 4;
-	[n,tn] = np.shape(data)
+def GetValidEdges(ts_data, zero_inds, time_start, time_stop, graphwriter):
+	t_range = 3;
+	[n,tn] = np.shape(ts_data)
 	corr_list = []
 	action_threshold = 0.05
-	derivative_threshold = 0.05
+	derivative_threshold = 0.008
 
 	num_res_per_lag = 1;
 	dim = 50
 	assert(int(np.sqrt(n)) == dim)
 	map_m = dim
 	map_n = dim
-
+	max_derivative = 0;
+	
 	Corrs = np.zeros((map_m*map_n,map_m*map_n,t_range));
 	# This will change for the regions we are using 
 	for t in range(1, t_range):
 		for i in range(0, map_m*map_n):
 			if i in zero_inds: continue;
 			neigh = Get8Neighbors(map_m, map_n, i)
-			# print neigh
+			ti = ts_data[i, time_start:time_stop]
 			for j in neigh:
-				# if j%map_n == i//map_n: continue;
-				if j in zero_inds: continue;
-				if np.max(data[i, time_start:time_stop]) < action_threshold or np.max(data[j, time_start:time_stop]) < action_threshold: continue
-				if GetDerivative(data[i, time_start:time_stop]) < derivative_threshold or GetDerivative(data[j, time_start:time_stop]) < derivative_threshold: #continue;
-						print(str(GetDerivative(data[i, time_start:time_stop])) + " " + str(GetDerivative(data[j, time_start:time_stop])))
-						# plot_ts(i,j)
-
-				if(Corrs[i,j,t] == 0):
-					Corrs[i,j,t] = FisherTransform(LagCorrelation(data[i,time_start:time_stop], data[j,time_start:time_stop], t));
+				if j in zero_inds: continue
+				tj = ts_data[j, time_start:time_stop]
+				if np.max(ti) < action_threshold or np.max(tj) < action_threshold: continue	
+				
+				if GetDerivative(ti) < derivative_threshold or GetDerivative(tj) < derivative_threshold: 	
+						continue;
+				else:
+					max_derivative = max(max_derivative, GetDerivative(ti));
+					max_derivative = max(max_derivative, GetDerivative(tj));
+				if(Corrs[i, j, t] == 0):
+					Corrs[i, j, t] = FisherTransform(LagCorrelation(ti.copy(), tj.copy(), t));
+					# print("corrs:"+str(Corrs[i,j,t]))
 					Corrs[j, i, t] = Corrs[i, j, t];
 						
 						# print('[{:d},{:d},{:f}], '.format(i,j, Corrs[i,j,t]), end="")
-					# Corrs[i,j,t] = FisherTransform(LagCorrelation(data[i,:], data[j,:], t));
+					# Corrs[i,j,t] = FisherTransform(LagCorrelation(ts_data[i,:], ts_data[j,:], t));
 		
 	# print np.count_nonzero(Corrs[:,:, 0]);
 	# print Corrs[:,:, 0];
 	# print
-	max_freq = np.max(data)
+	max_freq = np.max(ts_data)
 	std_by_t = np.zeros(t_range)				
 	# write to file 
 	# graphwriter = csv.writer(csvfile, delimiter=',', dialect='excel');
@@ -146,14 +150,17 @@ def GetValidEdges(data, zero_inds, time_start, time_stop, graphwriter):
 		print(std_by_t[t])
 		for i in range(0, map_m*map_n):
 			if i in zero_inds: continue;
+			ti = ts_data[i, time_start:time_stop].copy()
 			neigh = Get8Neighbors(map_m, map_n, i)
 			# print neigh
 			for j in neigh:
 				# if j%map_n == i//map_n: continue;
 				if j in zero_inds: continue;
-				if np.max(data[i, time_start:time_stop]) < action_threshold or np.max(data[j, time_start:time_stop]) < action_threshold  : continue
-				alpha_value = ((np.max(data[i, time_start:time_stop])+np.max(data[j, time_start:time_stop]))/2) /max_freq
-				graphwriter.writerow([time_start,t,i,j, ProbZ(np.fabs(Corrs[i,j,t])/std_by_t[t], tn-t), alpha_value])
+				tj = ts_data[j, time_start:time_stop].copy()
+				if np.max(ti) < action_threshold or np.max(tj) < action_threshold  : continue
+				# alpha_value = ((np.max(ti)+np.max(tj))/2) /max_freq
+				alpha_value = ((GetDerivative(ti)+GetDerivative(tj))/2) / max_derivative
+				graphwriter.writerow([time_start,t,i,j, ProbZ(np.fabs(Corrs[i,j,t].copy())/std_by_t[t], tn-t), alpha_value])
 
 
 	# max_corrs = np.zeros(t_range*num_res_per_lag)
@@ -220,7 +227,7 @@ def PinkNoise(alpha, m, tn):
 coords = np.genfromtxt('bird_coords.csv', delimiter=',');
 ts = np.genfromtxt('bird_timeseries.csv', delimiter=',');
 
-time_start = 0; time_stop = 10
+
 # print(str(GetDerivative(ts[1706, time_start:time_stop])) + " " + str(GetDerivative(ts[1707, time_start:time_stop])))
 # coords = np.genfromtxt('cassins_vireo_coords.csv', delimiter=',');
 # ts = np.genfromtxt('cassins_vireo_timeseries.csv', delimiter=',');
@@ -230,8 +237,8 @@ a = time.clock()
 # with open('cassins_vireo_map_vals.csv', 'wb') as csvfile:
 with open('map_vals.csv', 'wb') as csvfile:
 	graphwriter = csv.writer(csvfile, delimiter=',', dialect='excel');
-	for i in range(0,42,5):
-		GetValidEdges(ts, zero_inds, i, i+10, graphwriter)
+	for i in range(0,42,2):
+		GetValidEdges(ts, zero_inds, i, i+5, graphwriter)
 print(time.clock() - a)
 
 

@@ -38,8 +38,8 @@ def plot_birds_okay(time):
 	lon_0=-95, resolution='c', area_thresh=10000)
 
 	m.drawcoastlines()
-	m.drawcountries(linewidth=1.5)
-	m.drawstates(color='.5')
+	# m.drawcountries(linewidth=1.5)
+	# m.drawstates(color='.5')
 
 	m.drawmapboundary(fill_color='.9')
 	m.fillcontinents(color='.6',lake_color='.9')
@@ -55,7 +55,7 @@ def plot_birds_okay(time):
 	#edges = np.array([[20, 25, 0.6], [1300,2000,0.4], [1200,2134,0.5], [300,301,1.5], [200,201,1.2], [600,700,1.8], [25,26,0.5], [27,29,0.5], [1400,1405,1.2], [407,409,1.5]]);
 	print(sys.argv[1])
 	time = int(sys.argv[1]);
-	window = time*5;
+	window = time*2;
 	edges = get_edges_from_period(window);
 
 	# get coordinates of each edge
