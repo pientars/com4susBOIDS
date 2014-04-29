@@ -101,6 +101,11 @@ The extrema from this correlation will likely be produced in such a way that nor
 
 \[ C_{ij}^F [\tau] = \frac{1}{2} \ln \frac{1+C_{ij}[\tau]}{1-C_{ij}[\tau]} \]
 
+\[ P[z] = Pr\{z_{ij}^F \leq z\} \approx \exp\{-2 \exp [-a_n(z-b_n)]\} \]
+\[ z_{ij}^F=\frac{s_{ij}^F}{var(C_{ij}^F)^\frac{1}{2}} \]
+\[ a_n = \sqrt{2 \ln n} \]
+\[ b_n = a_n - (2a_n)^{-1}(\ln \ln n + \ln 4\ pi) \]
+
 A final detail is that we will need to look at `slices' of the time-series data and perform network inference for a set number of time periods (to account for different migratory behaviors in different seasons). The final network can be unweighted (where an edge exists if its weight is above a certain threshold), or weighted by the confidence that it is in the migratory network, to identify important corridors, sources, and sinks using a flow analysis. 
 
 As mentioned above, we avoid looking at all possible $n \choose 2$ edges by only looking at the 8-neighborhood of each node, for a total number of correlation computations of $8n$.
