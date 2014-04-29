@@ -1,3 +1,4 @@
+%!TEX root=final_report_nips.tex
 \section{Network Inference} 
 The statistical approach to graph inference is a well researched area with existing effective techniques \cite{AlbertMechanics}. Because the nature of this research problem involves inferring a network from a time-varying signal, we will leverage the work of Kramer et al. who proposed a state of the art method for statistically inferring an underlying functional network from a time-varied signal~\cite{kramer}. In this case, we attempt to establish the existence of signal propagation from one node to another, with a certain degree of confidence. 
 
@@ -14,14 +15,23 @@ In the approach taken by Kramer, et. al, the coupling measure is cross correlati
 
 \[ C_{ij}[\tau] = \frac{1}{\hat\sigma_i\hat\sigma_j (n-2\tau)}\sum_{t=1}^{n-\tau}(x_i[t] - \bar x_i )(x_j[t+\tau] - \bar x_j) \]
 
-The extrema from this correlation will likely be produced in such a way that normal-based significance tests will fail. Thus, we compute new values using the Fisher transformation, which we then perform a significance test on:
+The extrema from this correlation will likely be produced in such a way that normal-based significance tests will fail.
+This is because the extrema are unlikely to be normally distributed.  
+Thus, we compute new values using the Fisher transformation, which we then perform a significance test on:
 
 \[ C_{ij}^F [\tau] = \frac{1}{2} \ln \frac{1+C_{ij}[\tau]}{1-C_{ij}[\tau]} \]
 
+After using the Fisher transformation we can then use our normal-distribution based significance tests on our extrema.
+
 \[ P[z] = Pr\{z_{ij}^F \leq z\} \approx \exp\{-2 \exp [-a_n(z-b_n)]\} \]
+
+
 \[ z_{ij}^F=\frac{s_{ij}^F}{var(C_{ij}^F)^\frac{1}{2}} \]
 \[ a_n = \sqrt{2 \ln n} \]
 \[ b_n = a_n - (2a_n)^{-1}(\ln \ln n + \ln 4\ pi) \]
+Ideally the $z_{ij}^F$ standardized statistic would arise from independent cross correlations.  
+In our approach the cross correlations are definitely dependent; however, the approximation can be expected to work fairly well given these circumstances.
+The extreme value distribution has proven to be relatively robust under various dependency conditions \cite{Leadbetter83}. 
 
 A final detail is that we will need to look at `slices' of the time-series data and perform network inference for a set number of time periods (to account for different migratory behaviors in different seasons). The final network can be unweighted (where an edge exists if its weight is above a certain threshold), or weighted by the confidence that it is in the migratory network, to identify important corridors, sources, and sinks using a flow analysis. 
 
