@@ -53,8 +53,8 @@ lon = coords[1,:];
 # edges will be a set of edge tuples, weighted by the third column
 # edges are denoted by node id (linear from 0..2500)
 #edges = np.array([[20, 25, 0.6], [1300,2000,0.4], [1200,2134,0.5], [300,301,1.5], [200,201,1.2], [600,700,1.8], [25,26,0.5], [27,29,0.5], [1400,1405,1.2], [407,409,1.5]]);
+time = 1;
 print(sys.argv[1])
-time = int(sys.argv[1]);
 window = time*5;
 edges = get_edges_from_period(window);
 
