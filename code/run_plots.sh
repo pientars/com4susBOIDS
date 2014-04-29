@@ -1,0 +1,9 @@
+python plot_bird.py 0
+python plot_bird.py 1
+python plot_bird.py 2
+python plot_bird.py 3
+python plot_bird.py 4
+python plot_bird.py 5
+python plot_bird.py 6
+python plot_bird.py 7
+python plot_bird.py 8

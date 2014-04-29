@@ -4,7 +4,7 @@ import csv
 import time
 #import matplotlib.pyplot as plt
 from math import exp, log, floor, fabs, pi, sqrt, pow
-
+from plot_bird import plot_ts
 # from plot_bird.py import PlotBirdGraph
 
 def LagCorrelation(v1, v2, lag):
@@ -92,12 +92,19 @@ def GetStdWithoutDiag(mat):
 			temp[i*n +j-offset] = mat[i,j] 
 	return np.std(temp)
 
+def GetDerivative(v1):
+	m = len(v1);
+	acc = 0;
+	for i in range(0,m-1):
+		acc += np.abs(v1[i]-v1[i+1]);
+	return  acc/m;
 
 def GetValidEdges(data, zero_inds, time_start, time_stop, graphwriter):
 	t_range = 4;
 	[n,tn] = np.shape(data)
 	corr_list = []
 	action_threshold = 0.05
+	derivative_threshold = 0.05
 
 	num_res_per_lag = 1;
 	dim = 50
@@ -115,7 +122,11 @@ def GetValidEdges(data, zero_inds, time_start, time_stop, graphwriter):
 			for j in neigh:
 				# if j%map_n == i//map_n: continue;
 				if j in zero_inds: continue;
-				if np.max(data[i, time_start:time_stop]) < action_threshold or np.max(data[j, time_start:time_stop]) < action_threshold  : continue
+				if np.max(data[i, time_start:time_stop]) < action_threshold or np.max(data[j, time_start:time_stop]) < action_threshold: continue
+				if GetDerivative(data[i, time_start:time_stop]) < derivative_threshold or GetDerivative(data[j, time_start:time_stop]) < derivative_threshold: #continue;
+						print(str(GetDerivative(data[i, time_start:time_stop])) + " " + str(GetDerivative(data[j, time_start:time_stop])))
+						# plot_ts(i,j)
+
 				if(Corrs[i,j,t] == 0):
 					Corrs[i,j,t] = FisherTransform(LagCorrelation(data[i,time_start:time_stop], data[j,time_start:time_stop], t));
 					Corrs[j, i, t] = Corrs[i, j, t];
@@ -209,6 +220,8 @@ def PinkNoise(alpha, m, tn):
 coords = np.genfromtxt('bird_coords.csv', delimiter=',');
 ts = np.genfromtxt('bird_timeseries.csv', delimiter=',');
 
+time_start = 0; time_stop = 10
+# print(str(GetDerivative(ts[1706, time_start:time_stop])) + " " + str(GetDerivative(ts[1707, time_start:time_stop])))
 # coords = np.genfromtxt('cassins_vireo_coords.csv', delimiter=',');
 # ts = np.genfromtxt('cassins_vireo_timeseries.csv', delimiter=',');
 zero_inds = FindZeroTimeSeries(ts);
