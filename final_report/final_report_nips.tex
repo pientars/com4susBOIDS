@@ -2,6 +2,9 @@
 \usepackage{nips13submit_e,times}
 \usepackage{hyperref}
 \usepackage{url}
+\usepackage{amsmath}
+\usepackage{graphicx}
+
 %\documentstyle[nips13submit_09,times,art10]{article} % For LaTeX 2.09
 
 
@@ -9,14 +12,13 @@
 
 \author{
 Casey Battaglino \\
-Department of Computational Science and Engineering\\
 Georgia Institute of Technology\\
-Atlanta, GA 30318 \\
+Atlanta, GA 30332 \\
 \texttt{cbattaglino3@gatech.edu} \\
 \And
 Robert Pienta \\
 Georgia Institute of Technology \\
-Atlanta, GA 30318 \\
+Atlanta, GA 30332 \\
 \texttt{pientars@gatech.edu} \\
 }
 
@@ -31,7 +33,7 @@ Atlanta, GA 30318 \\
 \newcommand{\fix}{\marginpar{FIX}}
 \newcommand{\new}{\marginpar{NEW}}
 
-%\nipsfinalcopy % Uncomment for camera-ready version
+\nipsfinalcopy % Uncomment for camera-ready version
 
 \begin{document}
 \maketitle
@@ -40,15 +42,19 @@ Atlanta, GA 30318 \\
 eBird is a citizen science application that employs a statistical model to predict the spatial and temporal distribution of bird species throughout the United States. However, they do not offer a migration model. We discuss the process of `network inference,' initially developed to discover implicit networks in the brain from time-series data. We then discuss how we efficiently adapt this process to bird presence data, and analyze its suitability for detecting bird migration networks. 
 \end{abstract}
 
-\section{Submission of papers to NIPS 2013}
-
-
 \section{Introduction}
 eBird\cite{DBLP:conf/iaai/KellingGFLWYDG12} is a `citizen science' project that allows for users to report and store bird sightings online. This allows for the crowd-sourcing of bird identification and monitoring, a process that would otherwise require massive amounts of time and effort from researchers. 
 
 While this removes the burden of data collection from experts, it also introduces a number of new problems. In particular, it introduces a higher probability of misidentification (when non-experts attempt to identify birds), and introduces spatial bias, concentrating results around areas of high human population. Thus, data must be sanitized and normalized before it can be used to actually model bird presence. Implemented solutions to these issues are presented in Kelling, et. al~\cite{DBLP:conf/iaai/KellingGFLWYDG12}.
 
 The problem of generating spatially and temporally continuous species distribution from this data is discussed in the `STEM' paper of Fink, et. al~\cite{stem}. We are interested in using the output of this model to explore higher-level questions regarding the movement of migratory birds. In particular, we are interested in inferring an underlying migration network of a given species, given its spatial distribution over time. In our proposed model, nodes in the network represent a contiguous area of the United States, and weighted edges in the network represent the likelihood of bird migration from location to location. 
+
+\begin{figure}[h!]
+\centering
+\includegraphics[scale=0.65] {stem}
+\caption[Caption for]{Example of STEM output (\url{http://ebird.org/content/ebird/occurrence/})}
+\label{fig:00}
+\end{figure}
 
 \section{Motivation}
 Human development can infringe upon important bird habitats, reducing biodiversity. In particular, there is evidence that migratory birds are less likely to inhabit areas of increasing human development~\cite{riparian}. Thus, to minimize disruption of migration, we should be aware of prominent migration corridors so that we can prioritize them in conservation efforts. The 'sources' and 'sinks' of this network are also key candidates for conservation efforts.
