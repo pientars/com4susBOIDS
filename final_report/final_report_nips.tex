@@ -108,7 +108,7 @@ As mentioned above, we avoid looking at all possible $n \choose 2$ edges by only
 \section{Implementation}
 The STEM data produced by eBird came in \texttt{Rdata} format. Thus, our first step is transforming that data into CSV format. We then read the data into Python where we generate the averaged time-series data for each bounding box (with the number of boxes as a parameter). 
 
-Our network inference implementation then chooses a time-window of roughly 2 months and computes the cross-correlation for all candidate edges (which are the $8n$ 8-neighborhood edges noted above). We then perform the Fisher transformation of the correlations, and perform the significance test. 
+Our network inference implementation then chooses a time-window of roughly 2 months and computes the cross-correlation for all candidate edges (which are the $8n$ 8-neighborhood edges noted above, minus any with incident nodes that have been filtered due to low population). We then perform the Fisher transformation of the correlations, and perform the significance test. Thus, the general process is as follows:
 
 \begin{enumerate}
 \item Filter out zero-population and low-action ($p_{active} < 0.1$) nodes
@@ -117,14 +117,16 @@ Our network inference implementation then chooses a time-window of roughly 2 mon
 \item Keep valid edges
 \end{enumerate}
 
-\section{Results}
+The edges generated for each time period are returned as a list of tuples which can then be plotted on a map.
 
-\section{Analysis}
+\section{Results}
 
 \section{Conclusion}
 
-\subsection{Future Work}
+\section{Future Work}
+Qualitatively analyzing networks gives a limited picture. Quantitative measures can leverage the data more deeply. While betweenness centrality could identify some important `bottleneck' nodes, we believe that a maximum-flow measure would be more suitable, as this could also identify important sources and sinks if modeled correctly.
 
+The most important future work, were this to become a publication, is validation of the produced data with well-known existing migration patterns, as well as further analysis with a wide spread of bird species.
 
 \section{Related Work}
 The data from eBird was already used by Hurlbert et al. in an investigation of red vireo migration; wherein they discovered a direct correlation between the migration patterns and the average temperature \cite{hurlbert}. 
