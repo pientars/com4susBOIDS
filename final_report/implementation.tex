@@ -1,3 +1,4 @@
+%!TEX root=final_report_nips.tex
 \section{Implementation}
 The STEM data produced by eBird came in \texttt{Rdata} format. Thus, our first step is transforming that data into CSV format. We then read the data into Python where we generate the averaged time-series data for each bounding box (with the number of boxes as a parameter). 
 
@@ -11,6 +12,17 @@ Our network inference implementation then chooses a time-window of roughly 2 mon
 \end{enumerate}
 
 The edges generated for each time period are returned as a list of tuples which can then be plotted on a map.
+
+\subsection{Filtering}
+Given the large geographic coverage of the timeseries data, we had to employ several techniques to remove noise and control the density of edges returned by the inference.
+Because the inference only leverages the cross correlation under a particular lag, we needed to employ more data about the movement of the species as well as the current species' density at a given node.
+To better measure actual migration and not just co-presence, we employ three types of pre-filtering in our approach:
+\begin{enumerate}
+\item Zero-population -- all nodes that do not have any expected birds are immediately ignored.
+\item Low-action ($p_{active} < 0.05$) nodes -- all nodes with very low bird occurrences are also removed to reduce the number of edges.  When there are two neighboring nodes with extremely low swallow presence we filter them to insure that the nodes on our migration paths are actually paths that many birds take. 
+\item Stationary nodes -- time series derivative information is used to filter out the nodes that do not have movement.  Over each window we compute the average change in frequency for each location.  Low magnitude derivatives mean that the value of birds is stationary and no migration is occurring.  We leverage this directly to show only the migration structure and not just the presence.
+\end{enumerate}
+
 
 \section{Results}
 We generated a graph of bird movement over each a series of 2-month windows created by rolling each window 2 weeks at a time.
