@@ -1,5 +1,9 @@
 \section{Conclusion}
+As is clear from the results, we were able to generate concrete results and map them in a geographical context. One outstanding question is how highly-correlated our model is with the actual bird-presence data. Cross-correlation on its own will find two flat signals to be highly correlated, so it is clearly not a sufficient metric on its own. Our work-around to this problem was by adding a `movement' model that we then filter by. By computing an average-absolute derivative, we were able to remove from consideration nodes where bird population did not change much within a given time window. 
 
+From the results, we still qualitatively see a high correlation between bird presence and predicted migration networks. Also troublesome are the vast swaths of the northern US that are predicted as a migration network during the summer months. Much of this could be minimized with further tuning (filtering out even more nodes based on derivative). 
+
+One encouraging feature of our model's output is that it ignores the population of tree swallows in California for a good part of the year. This corresponds with the general knowledge that the tree swallow is a breeding resident of California, not a passage-migrant. 
 
 \section{Future Work}
 Qualitatively analyzing networks gives a limited picture. Quantitative measures can leverage the data more deeply. While betweenness centrality could identify some important `bottleneck' nodes, we believe that a maximum-flow measure would be more suitable, as this could also identify important sources and sinks if modeled correctly.
